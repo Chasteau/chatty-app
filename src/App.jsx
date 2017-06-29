@@ -6,8 +6,6 @@ class App extends Component {
   constructor(props) {
     super(props);
 
-    this.ws = new WebSocket('ws://localhost:3001');
-
     this.state = {
       message:[],
       currentUser: {name: "" }
@@ -15,16 +13,26 @@ class App extends Component {
   }
 
   componentDidMount() {
+    console.log("componentDidMount <App />");
+
+    // create new websocket connection once compenent mounds
+    this.ws = new WebSocket('ws://localhost:3001');
+
+    //Open socket connection on once component mounds.
+    this.ws.onopen = () =>{
+      console.log("Connection to server")
+    }
+
     let newMessage = this.state.message;
     // Recieve response from server
-    this.ws.addEventListener('message', (serverResponse) => {
+    this.ws.onmessage = (serverResponse) => {
         //push new responses into messages array
         newMessage.push(JSON.parse(serverResponse.data));
         //set the new state to be new messages
         this.setState({
           message: newMessage
         });
-    })
+    }
   }
 
   _sendMessageToServer = (msg) => {
