@@ -3,13 +3,13 @@ import React, {Component} from 'react';
 class ChatBar extends Component {
     render() {
 
-      const { handleEnter, name } = this.props;
+      const { getUserMessage, getUser } = this.props;
 
       return (
 
         <footer className="chatbar">
-          <input className="chatbar-username" placeholder = {name} />
-          <input className="chatbar-message" placeholder = "Type Your Message Here" onKeyPress = {(keypress) => handleEnter(keypress)}/>
+          <input className="chatbar-username" placeholder = "Username" onKeyPress = {(keypress) => getUser(keypress)} />
+          <input className="chatbar-message" placeholder = "Type Your Message Here" onKeyPress = {(keypress) => getUserMessage(keypress)}/>
         </footer>
       )
     }
