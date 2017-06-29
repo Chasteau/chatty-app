@@ -8,7 +8,7 @@ class App extends Component {
 
     this.state = {
       message:[],
-      currentUser: {name: "" }
+      currentUser: {name: "Anonymous" }
     }
   }
 
@@ -23,14 +23,13 @@ class App extends Component {
       console.log("Connection to server")
     }
 
-    let newMessage = this.state.message;
     // Recieve response from server
     this.ws.onmessage = (serverResponse) => {
         //push new responses into messages array
-        newMessage.push(JSON.parse(serverResponse.data));
+        this.state.message.push(JSON.parse(serverResponse.data));
         //set the new state to be new messages
         this.setState({
-          message: newMessage
+          message: this.state.message
         });
     }
   }
@@ -39,20 +38,16 @@ class App extends Component {
     this.ws.send(JSON.stringify(msg));
   }
 
-  _getCurrentUser = (event) => {
-    if(event.key === 'Enter' && event.target.value.length > 1) {
-      this.state.currentUser.name = event.target.value;
-    } else {
-      this.state.currentUser.name = "Anonymous";
-    }
+  _getCurrentUser = (userNameInput) => {
+    this.state.currentUser.name = userNameInput;
+    // this._sendMessageToServer(userNameInput);
   }
 
-  _getUserMessage = (event) => {
-    if(event.key === 'Enter' && event.target.value.length > 1) {
-      let newMessage = {username: this.state.currentUser.name, content: event.target.value};
+  _getUserMessage = (userMessageInput) => {
+    console.log("user message:", userMessageInput);
+      let newMessage = {username: this.state.currentUser.name, content: userMessageInput};
       this._sendMessageToServer(newMessage);
     }
-  }
 
   render() {
     return (
@@ -61,8 +56,8 @@ class App extends Component {
           <a href="/" className="navbar-brand">Chatty</a>
         </nav>
 
-        <ChatBar getUserMessage = {this._getUserMessage} getUser = {this._getCurrentUser} />
-        <MessageList messages = {this.state.message} />
+        <ChatBar getMessage={this._getUserMessage} getUser={this._getCurrentUser} />
+        <MessageList messages={this.state.message} />
       </div>
     );
   }
