@@ -36,3 +36,7 @@ Users can join the chatroom and talk as anon, but they can also create a suedo n
 ## Screenshots
 
 ![](http://recordit.co/m6bQguvt9c.gif)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 3714b68af097874c9fb3bd948673f8c0eeb0ab7c
