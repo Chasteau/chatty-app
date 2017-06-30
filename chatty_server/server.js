@@ -54,14 +54,13 @@ wss.on('connection', function connection (socket) {
     } else if(type ===  "countUsers") {
       response = clientCount();
     }
-
     //Send broadcast to all connected
     broadcast(JSON.stringify(response));
   });
 
   // Set up a callback for when a client closes the socket. This usually means they closed their browser.
   socket.on('close', function disconect(client) {
-    console.log('Client disconnected')
+    console.log('Client has disconnected')
      //If client disconnects then send broadcast to all connected
     broadcast(JSON.stringify(clientCount()));
   });
