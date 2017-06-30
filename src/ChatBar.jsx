@@ -14,8 +14,8 @@ class ChatBar extends Component {
     if (event.key === 'Enter' && event.target.value.length > 1) {
       userName = event.target.value;
       this.props.getUser(userName);
-      }
     }
+  }
 
   // Form validation for message input
   handleUserMessage = (event) => {
@@ -25,14 +25,14 @@ class ChatBar extends Component {
       this.props.getMessage(userMessage);
     }
   }
-    render() {
-      return (
-        <footer className="chatbar">
-          <input className="chatbar-username" placeholder = "Username" onKeyPress = {(keypress) => this.handleUserName(keypress)} />
-          <input className="chatbar-message" placeholder = "Type Your Message Here" onKeyPress = {(keypress) => this.handleUserMessage(keypress)}/>
-        </footer>
-      )
-    }
+  render() {
+    return (
+      <footer className="chatbar">
+        <input className="chatbar-username" placeholder = "Username" onKeyPress = {(keypress) => this.handleUserName(keypress)} />
+        <input className="chatbar-message" placeholder = "Type Your Message Here" onKeyPress = {(keypress) => this.handleUserMessage(keypress)}/>
+      </footer>
+    )
+  }
 }
 
 export default ChatBar;
