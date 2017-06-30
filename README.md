@@ -34,3 +34,6 @@ Users can join the chatroom and talk as anon, but they can also create a suedo n
   "react-dom": "15.4.2"
 
 ## Screenshots
+
+![](http://recordit.co/m6bQguvt9c.gif)
+
