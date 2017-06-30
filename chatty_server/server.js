@@ -2,6 +2,8 @@
 
 const express = require('express');
 const SocketServer = require('ws').Server;
+// Require uuid genertor
+const uuidv4 = require('uuid/v4');
 
 // Set the port to 3001
 const PORT = 3001;
@@ -15,8 +17,6 @@ const server = express()
 // Create the WebSockets server
 const wss = new SocketServer({ server });
 
-// Require uuid genertor
-const uuidv1 = require('uuid/v1');
 
   // define Broadcast function
 function broadcast(response) {
@@ -27,7 +27,7 @@ function broadcast(response) {
   })
 }
 
-
+const usersDB = [];
 
 // Set up a callback that will run when a client connects to the server
 // When a client connects they are assigned a socket, represented by
@@ -36,23 +36,32 @@ wss.on('connection', function connection (socket) {
   console.log('Client connected!');
 
   socket.on('message', function incoming (incomingData) {
-
-    let User = JSON.parse(incomingData).username;
+    let type = JSON.parse(incomingData).type;
+    let currentUser = JSON.parse(incomingData).username;
+    usersDB.push(currentUser);
     let Message = JSON.parse(incomingData).content;
-    // response.id =
-    // response.username = User;
-    // response.content = Message;
-    let response = {id: uuidv1(), username: User, content: Message};
+    let response;
 
+    if(type === "postMessage") {
+      response = {type:"incomingMessage", id: uuidv4(), username: currentUser, content: Message};
+    } else if (type === "postNotification") {
+      let oldUser = JSON.parse(incomingData).prevUser;
+      let notify = oldUser + " changed their name to " + currentUser;
+      // let oldUser = false;
+      // for (var i = 0; i < usersDB.length; i++) {
+      //   if(usersDB[i] == currentUser) {
+      //     oldUser = true;
+      //     return usersDB[i];
+      //   }
+      // }
+      response = {type: "incomingNotification", id: uuidv4(), username: currentUser, content: null, notification: notify};
+      // response = {type: "incomingNotification", id: uuidv4(), username: currentUser, content: null};
+    }
+
+    //Send broadcast to all connected
     broadcast(JSON.stringify(response));
-    // wss.clients.forEach(function each(client) {
-    //   client.send(JSON.stringify(response));
-    //   console.log("Sent: " + response);
-    // })
+
   });
-
-
-
 
   // Set up a callback for when a client closes the socket. This usually means they closed their browser.
   socket.on('close', () => console.log('Client disconnected'));

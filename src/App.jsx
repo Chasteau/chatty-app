@@ -1,20 +1,21 @@
 import React, {Component} from 'react';
 import ChatBar from './ChatBar.jsx';
 import MessageList from './MessageList.jsx';
+import Notification from './Notifications.jsx';
 
 class App extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      message:[],
-      currentUser: {name: "Anonymous" }
+      // type, id, username, content
+      messages:[],
+      currentUser: {name: "Anonymous" },
     }
   }
 
   componentDidMount() {
     console.log("componentDidMount <App />");
-
     // create new websocket connection once compenent mounds
     this.ws = new WebSocket('ws://localhost:3001');
 
@@ -25,12 +26,33 @@ class App extends Component {
 
     // Recieve response from server
     this.ws.onmessage = (serverResponse) => {
-        //push new responses into messages array
-        this.state.message.push(JSON.parse(serverResponse.data));
-        //set the new state to be new messages
-        this.setState({
-          message: this.state.message
-        });
+
+      // Parse incoming server response
+      const data = JSON.parse(serverResponse.data);
+      switch(data.type) {
+
+        case "incomingMessage":
+        //push new datas into messages array
+          this.state.messages.push(data);
+           //set the new state to be new messagess
+          this.setState({
+            messages: this.state.messages
+          });
+          break;
+
+        case "incomingNotification":
+        // console.log(data)
+          //push new datas into messages array
+          this.state.messages.push(data);
+          console.log(123, this.state.messages);
+           //set the new state to be new messagess
+          this.setState({
+            messages: this.state.messages
+          });
+          break;
+        default:
+          throw new Error("Unknown event type " + data.type);
+      }
     }
   }
 
@@ -38,14 +60,23 @@ class App extends Component {
     this.ws.send(JSON.stringify(msg));
   }
 
+  // _postNotification = (type) => {
+  //   let oldUser = this.state.currentUser.name;
+  //   console.log(oldUser);
+  // }
+
   _getCurrentUser = (userNameInput) => {
+    let oldUser = this.state.currentUser.name;
+    console.log("old user:", oldUser);
     this.state.currentUser.name = userNameInput;
-    // this._sendMessageToServer(userNameInput);
+    console.log("new user: ", this.state.currentUser.name);
+    let newUserNotification = {type: "postNotification", prevUser:oldUser, username: this.state.currentUser.name, content: ""};
+    this._sendMessageToServer(newUserNotification);
   }
 
   _getUserMessage = (userMessageInput) => {
-    console.log("user message:", userMessageInput);
-      let newMessage = {username: this.state.currentUser.name, content: userMessageInput};
+      console.log("user message:", userMessageInput);
+      let newMessage = {type: "postMessage", username: this.state.currentUser.name, content: userMessageInput};
       this._sendMessageToServer(newMessage);
     }
 
@@ -55,9 +86,8 @@ class App extends Component {
         <nav className="navbar">
           <a href="/" className="navbar-brand">Chatty</a>
         </nav>
-
+        <MessageList messages={this.state.messages} />
         <ChatBar getMessage={this._getUserMessage} getUser={this._getCurrentUser} />
-        <MessageList messages={this.state.message} />
       </div>
     );
   }
