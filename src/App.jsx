@@ -10,6 +10,7 @@ class App extends Component {
       // type, id, username, content
       messages:[],
       currentUser: {name: "Anonymous" },
+      users: 0
     }
   }
 
@@ -20,7 +21,9 @@ class App extends Component {
 
     //Open socket connection on once component mounds.
     this.ws.onopen = () =>{
-      console.log("Connection to server")
+    console.log("Connection to server");
+    let userCount = {type: "countUsers"}
+    this._sendMessageToServer(userCount);
     }
 
     // Recieve response from server
@@ -45,6 +48,14 @@ class App extends Component {
            //set the new state to be new messagess
           this.setState({
             messages: this.state.messages
+          });
+          break;
+        case "userCount":
+          //push new datas into messages array
+          this.state.users = data.users;
+           //set the new state to be new messagess
+          this.setState({
+            users: this.state.users
           });
           break;
         default:
@@ -74,6 +85,7 @@ class App extends Component {
        <div>
         <nav className="navbar">
           <a href="/" className="navbar-brand">Chatty</a>
+          <div className="navbar-users"> {this.state.users} Users Online</div>
         </nav>
         <MessageList messages={this.state.messages} />
         <ChatBar getMessage={this._getUserMessage} getUser={this._getCurrentUser} />

@@ -27,7 +27,10 @@ function broadcast(response) {
   })
 }
 
-const usersDB = [];
+//Count the number of connected clients count
+function clientCount () {
+  return {type: "userCount", users: wss.clients.size};
+}
 
 // Set up a callback that will run when a client connects to the server
 // When a client connects they are assigned a socket, represented by
@@ -38,31 +41,32 @@ wss.on('connection', function connection (socket) {
   socket.on('message', function incoming (incomingData) {
     let type = JSON.parse(incomingData).type;
     let currentUser = JSON.parse(incomingData).username;
-    usersDB.push(currentUser);
     let Message = JSON.parse(incomingData).content;
     let response;
 
-    if(type === "postMessage") {
+    if (type === "postMessage") {
       response = {type:"incomingMessage", id: uuidv4(), username: currentUser, content: Message};
     } else if (type === "postNotification") {
       let oldUser = JSON.parse(incomingData).prevUser;
-      let notify = oldUser + " changed their name to " + currentUser;
-      // let oldUser = false;
-      // for (var i = 0; i < usersDB.length; i++) {
-      //   if(usersDB[i] == currentUser) {
-      //     oldUser = true;
-      //     return usersDB[i];
-      //   }
-      // }
+      let notify = oldUser + " has changed their name to " + currentUser;
+
       response = {type: "incomingNotification", id: uuidv4(), username: currentUser, content: null, notification: notify};
-      // response = {type: "incomingNotification", id: uuidv4(), username: currentUser, content: null};
+    } else if(type ===  "countUsers") {
+      response = clientCount();
     }
 
     //Send broadcast to all connected
     broadcast(JSON.stringify(response));
-
   });
 
   // Set up a callback for when a client closes the socket. This usually means they closed their browser.
-  socket.on('close', () => console.log('Client disconnected'));
+  socket.on('close', function disconect(client) {
+    console.log('Client disconnected')
+     //If client disconnects then send broadcast to all connected
+    broadcast(JSON.stringify(clientCount()));
+  });
 });
+
+
+
+
